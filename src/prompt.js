@@ -3,7 +3,7 @@ const express = require('express');
 const router = express.Router();
 const axios = require('axios');
 
-router.use(express.json()); // Use JSON parsing middleware
+router.use(express.json());
 
 router.use(async (req, res, next) => {
   try {
@@ -13,13 +13,11 @@ router.use(async (req, res, next) => {
 
     const messages = req.body.messages;
 
-    // Prepare the request body
     const requestBody = {
       messages: messages,
       model: 'gpt-3.5-turbo',
     };
 
-    // Make a POST request to the Chat Completions API
     const response = await axios.post('https://api.openai.com/v1/chat/completions', requestBody, {
       headers: {
         'Content-Type': 'application/json',
@@ -27,7 +25,6 @@ router.use(async (req, res, next) => {
       }
     });
 
-    // Extract the completion from the response
     const completion = response.data.choices[0].message;
 
     req.chatgptResponse = completion;
