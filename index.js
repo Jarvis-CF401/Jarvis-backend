@@ -1,10 +1,13 @@
 const express = require('express');
-const bodyParser = require('body-parser'); // Import body-parser
-const config = require('./config/config');
-const promptRouter = require('./routes/promptRouter');
-
+const bodyParser = require('body-parser');
 const app = express();
-app.use(bodyParser.json()); // Use body-parser middleware for JSON parsing
+require('dotenv').config();
+const port = process.env.PORT || 3000;
+
+const promptRouter = require('./src/Routes/promptRouter.js');
+const errorHandler = require('./src/Middlewares/errorHandler.js');
+
+app.use(bodyParser.json());
 
 app.get('/', (req, res) => {
     res.send('Hello world!');
@@ -12,7 +15,9 @@ app.get('/', (req, res) => {
 
 app.use('/process-code', promptRouter);
 
-app.listen(config.port, () => {
-    console.log(`Server is running on http://localhost:${config.port}`);
-});
+// Error handling middleware should be used after all other middleware and routes
+app.use(errorHandler);
 
+app.listen(port, () => {
+    console.log(`Server is running on http://localhost:${port}`);
+});
