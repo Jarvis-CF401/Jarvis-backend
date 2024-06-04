@@ -12,7 +12,6 @@ const port = 3000;
 
 app.use(bodyParser.json());
 
-// Middleware to process user-submitted code
 app.use(async (req, res, next) => {
   try {
     if (!req.body.code) {
@@ -21,14 +20,12 @@ app.use(async (req, res, next) => {
 
     const userCode = req.body.code;
 
-    // Send the user code to ChatGPT
     const response = await openai.Completions.create({
       model: "text-davinci-003",
       prompt: `Please analyze the following code and return the requested information:\n\n${userCode}`,
       maxTokens: 150
     });
 
-    // Attach the response to the request object for further processing
     req.chatgptResponse = response.choices[0].text;
 
     next();
@@ -38,7 +35,6 @@ app.use(async (req, res, next) => {
   }
 });
 
-// Route to handle the processed code
 app.post('/process-code', (req, res) => {
   res.json({ result: req.chatgptResponse });
 });
