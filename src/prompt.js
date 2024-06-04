@@ -3,7 +3,7 @@ const express = require('express');
 const router = express.Router();
 const axios = require('axios');
 
-router.use(express.json());
+router.use(express.json()); // Use JSON parsing middleware
 
 router.use(async (req, res, next) => {
   try {
