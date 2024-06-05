@@ -1,7 +1,7 @@
 const request = require('supertest');
 const express = require('express');
 const dotenv = require('dotenv');
-const openaiMiddleware = require('../src/middlewares/openaiMiddleware');
+const openaiMiddleware = require('../src/models/openaiModel');
 const errorHandler = require('../src/middlewares/errorHandler');
 
 dotenv.config();
