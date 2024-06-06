@@ -271,7 +271,7 @@
     "yocto-queue": "^0.1.0"
   },
   "scripts": {
-    "test": "jest",
+    "test": "jest --verbose --coverage",
     "start": "node index.js",
     "dev": "nodemon index.js"
   },
