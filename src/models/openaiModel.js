@@ -1,7 +1,7 @@
 require('dotenv').config();
 const axios = require('axios');
 
-const openaiMiddleware = async (req, res, next) => {
+const openaiModel = async (req, res, next) => {
   try {
     if (!req.body.messages || !Array.isArray(req.body.messages) || req.body.messages.length === 0) {
       return res.status(400).json({ error: 'No messages provided or invalid format' });
@@ -27,8 +27,8 @@ const openaiMiddleware = async (req, res, next) => {
 
     next();
   } catch (error) {
-    next(error); // Pass the error to the error handling middleware
+    next(error);
   }
 };
 
-module.exports = openaiMiddleware;
+module.exports = openaiModel;
