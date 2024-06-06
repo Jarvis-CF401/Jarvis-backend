@@ -1,50 +1,35 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const sessionMiddleware = require('./src/middlewares/session.js'); // Import session middleware
-const passport = require('passport');
+const dotenv = require('dotenv');
+const session = require('./src/middlewares/session');
+const passport = require('./src/config/authConfig');
+const promptRouter = require('./src/routes/promptRouter');
+const authRouter = require('./src/routes/authRouter');
+const errorHandler = require('./src/middlewares/errorHandler');
+const requestLogger = require('./src/middlewares/requestLogger');
+const initDatabase = require('./src/config/initDatabase');
 
-const authRouter = require('./src/routes/authRouter.js');
-const errorHandler = require('./src/middlewares/errorHandler.js');
-const requestLogger = require('./src/middlewares/requestLogger.js');
+dotenv.config();
 
-
-require('dotenv').config();
-
+const app = express();
 const port = process.env.PORT || 3000;
 
-const promptRouter = require('./src/routes/promptRouter.js');
-
-// Initialize Express app
-const app = express();
-
-// Body parser middleware
 app.use(bodyParser.json());
-
-// Session middleware
-app.use(sessionMiddleware);
-
-// Initialize Passport middleware
+app.use(session);
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Routes
+app.use('/process-code', promptRouter);
+app.use('/auth', authRouter);
+app.use(requestLogger);
+app.use(errorHandler);
+
 app.get('/', (req, res) => {
   res.send('Hello world!');
 });
 
-// Authentication routes
-app.use('/auth', authRouter);
+initDatabase();
 
-// Process code route
-app.use('/process-code', promptRouter);
-
-// Request logger middleware
-app.use(requestLogger);
-
-// Error handler middleware
-app.use(errorHandler);
-
-// Start the server
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
