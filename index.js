@@ -1,50 +1,36 @@
+require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
-const sessionMiddleware = require('./src/middlewares/session.js'); // Import session middleware
-const passport = require('passport');
-
-const authRouter = require('./src/routes/authRouter.js');
-const errorHandler = require('./src/middlewares/errorHandler.js');
-const requestLogger = require('./src/middlewares/requestLogger.js');
-
-
-require('dotenv').config();
-
+const app = express();
 const port = process.env.PORT || 3000;
 
-const promptRouter = require('./src/routes/promptRouter.js');
+const sessionConfig = require('./src/config/session');
+const passport = require('./src/config/auth');
+const promptRouter = require('./src/routes/promptRouter');
+const authRouter = require('./src/routes/authRouter');
+const errorHandler = require('./src/middlewares/errorHandler');
+const requestLogger = require('./src/middlewares/requestLogger');
+const initDatabase = require('./src/config/initDatabase');
 
-// Initialize Express app
-const app = express();
-
-// Body parser middleware
 app.use(bodyParser.json());
-
-// Session middleware
-app.use(sessionMiddleware);
-
-// Initialize Passport middleware
+app.use(sessionConfig);
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Routes
-app.get('/', (req, res) => {
-  res.send('Hello world!');
-});
+initDatabase().then(() => {
+  app.use('/auth', authRouter);
+  app.use('/process-code', promptRouter);
 
-// Authentication routes
-app.use('/auth', authRouter);
+  app.use(requestLogger);
+  app.use(errorHandler);
 
-// Process code route
-app.use('/process-code', promptRouter);
+  app.get('/', (req, res) => {
+    res.send('Hello world!');
+  });
 
-// Request logger middleware
-app.use(requestLogger);
-
-// Error handler middleware
-app.use(errorHandler);
-
-// Start the server
-app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+  app.listen(port, () => {
+    console.log(`Server is running on http://localhost:${port}`);
+  });
+}).catch(error => {
+  console.error('Failed to initialize database:', error);
 });

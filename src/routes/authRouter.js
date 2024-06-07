@@ -1,55 +1,67 @@
-// Import necessary modules
 const express = require('express');
-const passport = require('../config/authConfig');
-const authRouter = express.Router(); // Renamed to avoid conflicts
+const User = require('../models/user');
+const passport = require('../config/auth');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const sqlite3 = require('sqlite3').verbose();
+const path = require('path');
+const authRouter = express.Router();
 
-// Mock database to store user information
-let users = [];
-
-// Implement sign-in route
-authRouter.get('/login', passport.authenticate('auth0', {
-  scope: 'openid email profile'
-}), (req, res) => {
-  res.redirect('/');
+authRouter.post('/signup', async (req, res, next) => {
+  try {
+    const { username, email, password } = req.body;
+    const user = await User.create({ username, email, password });
+    res.status(201).json({ message: 'User created successfully', user });
+  } catch (error) {
+    if (error.name === 'SequelizeValidationError') {
+      return res.status(400).json({ error: 'Validation error', details: error.errors });
+    }
+    next(error);
+  }
 });
 
-// Implement callback route
+const db = new sqlite3.Database(path.resolve(__dirname, '../../database.sqlite'));
+
+authRouter.post('/login', (req, res) => {
+  const { email, password } = req.body;
+
+  db.get('SELECT * FROM users WHERE email = ?', [email], (err, user) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+    if (!user) {
+      return res.status(401).json({ message: 'Invalid email or password' });
+    }
+
+    bcrypt.compare(password, user.password, (err, isMatch) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ message: 'Internal server error' });
+      }
+      if (!isMatch) {
+        return res.status(401).json({ message: 'Invalid email or password' });
+      }
+
+      const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
+      res.json({ token });
+    });
+  });
+});
+
+authRouter.get('/login', passport.authenticate('auth0', {
+  scope: 'openid email profile'
+}));
+
 authRouter.get('/callback', passport.authenticate('auth0', {
   failureRedirect: '/login'
 }), (req, res) => {
   res.redirect('/');
 });
 
-// Implement logout route
 authRouter.get('/logout', (req, res) => {
   req.logout();
   res.redirect('/');
-});
-
-// Implement signup route
-authRouter.post('/signup', (req, res) => {
-  console.log('Signup route reached');
-  const { username, email, password } = req.body;
-
-  // Check if user already exists
-  const existingUser = users.find(user => user.email === email);
-  if (existingUser) {
-    return res.status(400).json({ error: 'User already exists' });
-  }
-
-  // Create a new user object
-  const newUser = {
-    id: users.length + 1,
-    username,
-    email,
-    password // Note: In production, passwords should be hashed before storing.
-  };
-
-  // Add the new user to the mock database
-  users.push(newUser);
-
-  // Optionally, you can return the created user object as the response
-  res.status(201).json(newUser);
 });
 
 module.exports = authRouter;
