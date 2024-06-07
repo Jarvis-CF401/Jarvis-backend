@@ -13,6 +13,13 @@ const errorHandler = require('./src/middlewares/errorHandler');
 const requestLogger = require('./src/middlewares/requestLogger');
 const initDatabase = require('./src/config/initDatabase');
 
+// Use CORS middleware
+app.use(cors({
+  origin: 'http://localhost:5173', // Adjust this to your frontend's origin
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  credentials: true, // if you need to send cookies or authentication headers
+}));
+
 app.use(bodyParser.json());
 app.use(sessionConfig);
 app.use(passport.initialize());
