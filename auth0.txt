@@ -11,4 +11,4 @@
   ]
 }
 
-prompt route not being protected by AUTH0 at the moment.
+prompt route not being protected by AUTH0 at the moment.\
