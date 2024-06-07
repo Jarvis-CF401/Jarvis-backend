@@ -1,14 +1,14 @@
 const request = require('supertest');
 const express = require('express');
 const dotenv = require('dotenv');
-const openaiMiddleware = require('../src/models/openaiModel');
+const openaiModel = require('../src/models/openaiModel');
 const errorHandler = require('../src/middlewares/errorHandler');
 
 dotenv.config();
 
 const app = express();
 app.use(express.json());
-app.post('/test-openai', openaiMiddleware, (req, res) => {
+app.post('/test-openai', openaiModel, (req, res) => {
   res.json({ result: req.chatgptResponse });
 });
 app.use(errorHandler);
@@ -51,7 +51,7 @@ describe('OpenAI Middleware Test', () => {
     
     const invalidApp = express();
     invalidApp.use(express.json());
-    invalidApp.post('/test-openai', openaiMiddleware, (req, res) => {
+    invalidApp.post('/test-openai', openaiModel, (req, res) => {
       res.json({ result: req.chatgptResponse });
     });
     invalidApp.use(errorHandler);

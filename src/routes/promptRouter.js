@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const openaiMiddleware = require('../models/openaiModel');
-const { verifyUser } = require('../middlewares/authorize');
+const openaiModel = require('../models/openaiModel.js');
+const authenticate = require('../middlewares/authenticate.js');
 
-router.post('/', verifyUser, openaiMiddleware, (req, res) => {
+router.post('/', authenticate, openaiModel, (req, res) => {
   res.json({ result: req.chatgptResponse });
 });
 
