@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
+const cors = require('cors');
 const port = process.env.PORT || 3000;
 
 const sessionConfig = require('./src/config/session');
@@ -12,6 +13,9 @@ const errorHandler = require('./src/middlewares/errorHandler');
 const requestLogger = require('./src/middlewares/requestLogger');
 const initDatabase = require('./src/config/initDatabase');
 
+app.use(cors({
+  origin: 'http://localhost:5173'
+}));
 app.use(bodyParser.json());
 app.use(sessionConfig);
 app.use(passport.initialize());

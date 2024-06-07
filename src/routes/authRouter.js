@@ -1,6 +1,6 @@
 const express = require('express');
 const User = require('../models/user');
-const passport = require('../config/auth');
+const passport = require('passport');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const sqlite3 = require('sqlite3').verbose();
