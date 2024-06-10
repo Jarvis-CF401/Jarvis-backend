@@ -1,0 +1,14 @@
+{
+  "username": "testyMctester",
+  "email": "mctester@example.com",
+  "password": "Jarvis123"
+}
+
+
+{
+  "messages": [
+    { "role": "user", "content": "Can you help me with my code?" }
+  ]
+}
+
+prompt route not being protected by AUTH0 at the moment.
